@@ -6,7 +6,7 @@ import axios from "axios";
 
 const EditMovieForm = (props) => {
   const { push } = useHistory();
-
+  const { id } = useParams();
   const { setMovies } = props;
   const [movie, setMovie] = useState({
     title: "",
@@ -15,6 +15,18 @@ const EditMovieForm = (props) => {
     metascore: 0,
     description: "",
   });
+
+  const [movieData, getMovies, loading, err] = useAxios({
+    reqType: "get",
+    endPoint: `movies/${id}`,
+  });
+
+  const [newMovieData, putMovie, putLoading, putErr] = useAxios({
+    reqType: "put",
+    endPoint: `movies/${id}`,
+    payload: "movie",
+  });
+
 
   const handleChange = (e) => {
     setMovie({
@@ -25,18 +37,18 @@ const EditMovieForm = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .put(`http://localhost:9000/api/movies/${id}`, movie)
-      .then((res) => {
-        setMovies(res.data);
-        push(`/movies/${movie.id}`);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    putMovie().then((res) => {
+      setMovies(res);
+    });
+    push("/")
   };
 
   const { title, director, genre, metascore, description } = movie;
+
+  useEffect(() => {
+    getMovies().then((res) => setMovie(res))
+    .catch((err) => console.log(err));
+  }, []);
 
   return (
     <div className="bg-white rounded-md shadow flex-1">
